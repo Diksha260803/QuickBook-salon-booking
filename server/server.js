@@ -1,5 +1,7 @@
 const express = require('express'); //it imports express library
 const app = express();  // creates server application
+const cors = require('cors');
+app.use(cors());
 const mongoose = require('mongoose'); // it imports  
 // mongoose for db setup 
 const Service = require('./models/service');
@@ -9,6 +11,7 @@ const User = require('./models/user');
 const verifyToken = require('./middleware/verifyToken');
 const isAdmin = require('./middleware/isAdmin'); 
 const Booking = require('./models/Booking');
+
  require('dotenv').config();
 app.use(express.json());
 app.post('/api/auth/signup', async (req, res) => {
