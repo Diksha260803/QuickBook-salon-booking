@@ -1,40 +1,46 @@
-import { useEffect, useState } from 'react';
-import axiosInstance from './api/axiosInstance';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
+
+import Home from "./pages/customer/Home";
+import Login from "./pages/customer/Login";
+import Signup from "./pages/customer/Signup";
+import ServiceDetail from "./pages/customer/ServiceDetail";
+import MyBookings from "./pages/customer/MyBookings";
+
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminServices from "./pages/admin/AdminServices";
+import AdminBookings from "./pages/admin/AdminBookings";
 
 function App() {
-  const [services, setServices] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    axiosInstance.get('/services')
-      .then((res) => {
-        setServices(res.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setError('Failed to load services');
-        setLoading(false);
-      });
-  }, []);
-
-  if (loading) return <p className="text-center mt-10">Loading services...</p>;
-  if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
-
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-semibold mb-6">QuickBook Services</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {services.map((service) => (
-          <div key={service._id} className="border rounded-xl p-4 shadow-sm">
-            <h2 className="font-medium text-lg">{service.name}</h2>
-            <p className="text-gray-500 text-sm">{service.duration}</p>
-            <p className="mt-2 font-semibold">₹{service.price}</p>
-          </div>
-        ))}
-      </div>
-    </div>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Customer */}
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/services/:id" element={<ServiceDetail />} />
+          <Route path="/my-bookings" element={
+            <ProtectedRoute><MyBookings /></ProtectedRoute>
+          } />
+
+          {/* Admin */}
+          <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/admin" element={
+            <ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>
+          } />
+          <Route path="/admin/services" element={
+            <ProtectedRoute adminOnly><AdminServices /></ProtectedRoute>
+          } />
+          <Route path="/admin/bookings" element={
+            <ProtectedRoute adminOnly><AdminBookings /></ProtectedRoute>
+          } />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
